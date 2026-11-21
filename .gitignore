@@ -1,0 +1,13 @@
+/Makefile
+/b0rken/Makefile
+/m4/Makefile
+/config.h
+/config.log
+/config.status
+/stamp-h1
+/wmsystemtray
+/wmsystemtray.1
+*.o
+*.a
+.deps/
+autom4te.cache/
