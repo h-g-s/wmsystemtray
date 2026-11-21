@@ -30,7 +30,6 @@ if test "$LINK_XPM" = ""; then
     AC_MSG_ERROR(cannot find libxpm)
 fi
 AC_HEADER_STDC
-if test "$ac_cv_header_stdc" != "yes"; then AC_MSG_WARN(standard C headers not found); fi
 AC_CHECK_HEADERS([stdlib.h string.h unistd.h],, AC_MSG_WARN($ac_header not found))
 
 # Checks for typedefs, structures, and compiler characteristics.

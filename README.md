@@ -12,11 +12,15 @@ development libraries including Xext, Xfixes, Xmu or Xmuu, and Xpm.
 ```sh
 ./configure
 make
+make check
 ```
 
 Run `./wmsystemtray --help` for options, or consult the generated
 `wmsystemtray.1` manual page. To install, run `make install` with the
 appropriate permissions.
+
+The icon leak test requires Valgrind. The X11 integration test requires Xvfb,
+xvfb-run, and xauth. Each test is skipped if its tools are missing.
 
 ## License
 

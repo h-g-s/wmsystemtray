@@ -7,6 +7,13 @@
 /stamp-h1
 /wmsystemtray
 /wmsystemtray.1
+/test-icons
+/test-tray
+/test-suite.log
+/test-icons.log
+/test-icons.trs
+/tests/*.log
+/tests/*.trs
 *.o
 *.a
 .deps/

@@ -20,47 +20,43 @@ struct trayicon {
     struct trayicon *next;
 };
 
+struct app_state;
+
 // This struct holds the necessary interface functions
 struct trayfuncs {
     // Handle an X event. Or just ignore it, if it doesn't pertain to you.
-    void (*handle_event)(XEvent *);
+    void (*handle_event)(struct app_state *, XEvent *);
 
     // Called when a tray icon is being removed.
-    void (*remove_icon)(struct trayicon *);
+    void (*remove_icon)(struct app_state *, struct trayicon *);
 
     // Called when the app is closing, before all icons are removed.
     // This should take whatever action is necessary to not accept any more
     // icons.
-    void (*closing)(void);
+    void (*closing)(struct app_state *);
 
     // Called after all icons have been removed.
-    void (*deinit)(void);
+    void (*deinit)(struct app_state *);
 };
 
-/*
- * Global variables
- */
+#define NUM_TYPES 1
 
-// Set this if you want the app to exit
-extern volatile sig_atomic_t exitapp;
+struct app_state {
+    volatile sig_atomic_t exitapp;
+    Bool need_update;
+    Display *display;
+    int screen;
+    Window root;
+    Window selwindow;
+    int iconsize;
+    int num_windows;
+    Window *iconwin;
+    struct trayicon *icons;
+    int num_mapped_icons;
+    struct trayfuncs *types[NUM_TYPES];
+};
 
-// Set this if you want to trigger a redraw
-extern Bool need_update;
-
-// Read-only data
-extern const char *PROGNAME;
-extern Bool nonwmaker;
-extern Display *display;
-extern int screen;
-extern Window root;
-
-// Be sure your icons remain this size or smaller.
-extern int iconsize;
-
-// This (dummy) window exists for use in holding ICCCM manager selections and
-// such. Use the provided utility function instead of XSelectInput
-extern Window selwindow;
-void selwindow_add_mask(long mask);
+void selwindow_add_mask(struct app_state *state, long mask);
 
 /*
  * X functions
@@ -68,14 +64,14 @@ void selwindow_add_mask(long mask);
 
 // Call this before accessing any window not created by us. MUST be matched by
 // a call to uncatch_BadWindow_errors.
-void *catch_BadWindow_errors();
+void *catch_BadWindow_errors(void);
 
 // Pass the pointer from catch_BadWindow_errors. Returns True if an error was
 // ignored.
-Bool uncatch_BadWindow_errors(void *v);
+Bool uncatch_BadWindow_errors(struct app_state *state, void *v);
 
 // Get the current X time
-Time get_X_time();
+Time get_X_time(struct app_state *state);
 
 
 /*
@@ -83,21 +79,21 @@ Time get_X_time();
  */
 
 // Call this to find out if a particular window is one of ours
-Bool is_icon_parent(Window w);
+Bool is_icon_parent(const struct app_state *state, Window w);
 
 // Add an icon for the specified window. Returns NULL on error.
-struct trayicon *icon_add(int type, Window w, void *data);
+struct trayicon *icon_add(struct app_state *state, int type, Window w, void *data);
 
 // Remove the icon for the specified window.
-void icon_remove(Window w);
+void icon_remove(struct app_state *state, Window w);
 
 // Find the icon struct for the specified window.
-struct trayicon *icon_find(Window w);
+struct trayicon *icon_find(struct app_state *state, Window w);
 
 // Any sane icon protocol will have the icon indicate whether it should
 // be mapped or not, rather than just trying to call XMapWindow or XUnmapWindow
 // directly. Use this function to indicate that state change.
-Bool icon_set_mapping(struct trayicon *icon, Bool map);
+Bool icon_set_mapping(struct app_state *state, struct trayicon *icon, Bool map);
 
 // If the icon wants us to display a popup message (rather than just using
 // libnotify itself), begin by passing the metadata here. "id" must be unique
